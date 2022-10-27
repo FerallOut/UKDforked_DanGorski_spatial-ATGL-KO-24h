@@ -54,6 +54,32 @@ write.csv(deg_clusters,
 )
 remove(de_genes)
 
+# With significance threshold
+de_genes <- list()
+for (i in levels(Idents(hearts))) {
+  results <- FindMarkers(hearts,
+                         group.by = "genotype",
+                         subset.ident = i,
+                         ident.1 = "KO",
+                         assay = "Spatial",
+                         logfc.threshold = 0.25,
+                         
+  )
+  results$cluster <- i
+  results$gene <- row.names(results)
+  row.names(results) <- NULL
+  results$regulation <- ifelse(results$avg_log2FC > 0, "Up", "Down")
+  de_genes[[i]] <- results
+}
+deg_clusters_sig <- do.call(rbind, de_genes)
+deg_clusters_sig <- deg_clusters_sig %>% filter(p_val_adj <= 0.01)
+rownames(deg_clusters_sig) <- NULL
+write.csv(deg_clusters_sig,
+          file = "results/differential-gene-expression/deg_clusters_sig.csv",
+          row.names = F
+)
+remove(de_genes)
+
 # Volcano plot
 for (i in unique(deg_clusters$cluster)) {
   pdf(
