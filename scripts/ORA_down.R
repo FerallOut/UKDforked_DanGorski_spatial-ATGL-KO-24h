@@ -40,7 +40,7 @@ ORA_down <- function (df, identity, detected_genes, title) {
                         label_format = 30,
                         orderBy = "x") +
       labs(title = title,
-           subtitle = paste0("Cluster: ", i)) +
+           subtitle = paste0("Niche: ", i)) +
       theme(legend.position = "right",
             legend.box = "vertical")
       print(ora_down)
