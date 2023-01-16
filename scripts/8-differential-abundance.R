@@ -12,14 +12,15 @@ for (i in output_dirs) {
     print(paste0(i, " directory already exists."))
   }
 }
+
 # Load libraries, functions and objects
-library(Seurat) # v4.0.1
-load("results/objects/hearts.Rdata")
+library(Seurat)
+load("results/objects/obj_annotated.Rdata")
 
 # Proportion
 differential_abundance <- (prop.table(table(
-  Idents(hearts),
-  hearts$genotype
+  Idents(obj),
+  obj$genotype
 ),
 margin = 2
 ))

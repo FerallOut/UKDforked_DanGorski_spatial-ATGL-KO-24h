@@ -14,30 +14,30 @@ for (i in output_dirs) {
 }
 
 # Load libraries, functions and objects
-library(Seurat) # v4.0.1
+library(Seurat)
 library(ggplot2)
 library(patchwork)
 library(scales)
 source("scripts/SpatialFeaturePlotScaled.R")
-load("results/objects/hearts.Rdata")
+load("results/objects/obj_annotated.Rdata")
 
 # subset Control heart, re-run SCT to normalize, scale, center data 
-Idents(hearts) <- "genotype"
-hearts_control <- subset(hearts, idents = "Control")
-hearts_control <- SCTransform(hearts_control, assay = "Spatial")
+Idents(obj) <- "genotype"
+obj_control <- subset(obj, idents = "Control")
+obj_control <- SCTransform(obj_control, assay = "Spatial")
 
-# find svf in 24 IR heart
-hearts_control <- FindSpatiallyVariableFeatures(hearts_control,
+# find svf in 24 IR control heart
+obj_control <- FindSpatiallyVariableFeatures(obj_control,
   assay = "SCT",
   selection.method = "markvariogram",
-  features = VariableFeatures(hearts_control),
+  features = VariableFeatures(obj_control),
   image = "Control",
   verbose = T,
   nfeatures = 20
 )
 top_20_svf <- head(
   SpatiallyVariableFeatures(
-    hearts_control,
+    obj_control,
     selection.method = "markvariogram"
   ),
   20
@@ -59,7 +59,7 @@ for (i in top_20_svf) {
     width = 12.75,
     useDingbats = F
   )
-  SpatialFeaturePlotScaled(hearts,
+  SpatialFeaturePlotScaled(obj,
     group = "genotype",
     group.1 = "Control",
     group.2 = "KO",

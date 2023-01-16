@@ -14,16 +14,16 @@ for (i in output_dirs) {
 }
 
 # Load libraries, functions and objects
-library(Seurat) # v4.0.1
+library(Seurat)
 library(ggplot2)
 library(patchwork)
 library(scales)
 library(dplyr)
 source("scripts/SpatialFeaturePlotScaled.R")
-load("results/objects/hearts.Rdata")
+load("results/objects/obj_annotated.Rdata")
 default_colors <- (hue_pal()(7))
 
-# Genes
+# Genes of interest
 genes <- c(
   "Plin5", "Plin2", "Pdk4", "Pdp2", "Cpt1a", "Acacb",
   "Angptl4", "Slc2a4", "Cd36", "Lpl", "Acadm",
@@ -38,43 +38,41 @@ genes <- c(
   "Slc2a1", "Myh7", "Map1lc3b", "Ccl6", "Ccl9", "Thbs1",
   "Ccl2", "Il1b", "Ccl7", "Pf4", "Cxcl2", "Ppbp", "Ednrb",
   "Ccl7", "Ccl8", "Adipor1", "Adipor2", "Lepr", "Leprot",
-  "Leprotl1", "Lep", "Snx1", "Snx2", "Snx4", "Il4ra"
-)
+  "Leprotl1", "Lep", "Snx1", "Snx2", "Snx4", "Il4ra", "Tmsb4",
+  "Fabp3", "Pnpla2", "Tgfb2"
+  )
 
-# SpatialFeaturePlots
+# Prune genes of interest, making sure they are expressed in the object
+expressed_genes <- list()
 for (i in genes) {
-  pdf(
-    file = paste0("results/genes-of-interest/SpatialFeaturePlot_", i, ".pdf"),
-    height = 6,
-    width = 12.75,
-    useDingbats = F
+  
+  # Error handling
+  possibleError <- tryCatch(
+  FetchData(obj, vars = i),
+  error=function(e) e)
+  
+  # If no error (exists in data set), add it to expressed genes list
+  if(!inherits(possibleError, "error")) {
+  expressed_genes[[i]] <- i
+  } else (
+    print(paste0(i, " - not expressed, removing from list."))
   )
-  SpatialFeaturePlotScaled(
-    object = hearts,
-    group = "genotype",
-    group.1 = "Control",
-    group.2 = "KO",
-    feature_of_interest = i,
-    from.meta.data = FALSE,
-    group.1.title = "Control",
-    group.2.title = "KO"
-  )
-  dev.off()
 }
+expressed_genes <- unlist(expressed_genes)
 
 # VlnPlots
-for (i in genes) {
+for (i in expressed_genes) {
   pdf(
     file = paste0("results/genes-of-interest/VlnPlot_", i, ".pdf"),
     height = 6,
     width = 8,
     useDingbats = F
   )
-  p <- VlnPlot(hearts,
-    features = i,
-    split.by = "genotype",
-    assay = "Spatial",
-    split.plot = TRUE
+  p <- VlnPlot(obj,
+               features = i,
+               split.by = "genotype",
+               assay = "Spatial",
+               split.plot = TRUE
   ) +
     theme(
       plot.title = element_text(face = "italic", size = 20),
@@ -85,4 +83,25 @@ for (i in genes) {
   print(p)
   dev.off()
   print(paste0(i, " - done."))
+  }
+
+# SpatialFeaturePlots
+for (i in expressed_genes) {
+  pdf(
+    file = paste0("results/genes-of-interest/SpatialFeaturePlot_", i, ".pdf"),
+    height = 6,
+    width = 12.75,
+    useDingbats = F
+  )
+  SpatialFeaturePlotScaled(
+    object = obj,
+    group = "genotype",
+    group.1 = "Control",
+    group.2 = "KO",
+    feature_of_interest = i,
+    from.meta.data = FALSE,
+    group.1.title = "Control",
+    group.2.title = "KO"
+  )
+  dev.off()
 }

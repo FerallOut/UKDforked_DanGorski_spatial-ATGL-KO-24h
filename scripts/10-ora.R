@@ -14,7 +14,7 @@ for (i in output_dirs) {
 }
 
 # Load libraries, functions and objects
-library(Seurat) # v4.0.1
+library(Seurat)
 library(ggplot2)
 library(patchwork)
 library(scales)
@@ -27,31 +27,31 @@ library(knitr)
 library(kableExtra)
 source("scripts/ORA_up.R")
 source("scripts/ORA_down.R")
-load("results/objects/hearts.Rdata")
+load("results/objects/obj_annotated.Rdata")
 default_colors <- (hue_pal()(7))
 
 # Load dge data
-deg_clusters <- read.csv(file = "results/differential-gene-expression/deg_clusters.csv")
+deg_niches_sig <- read.csv(file = "results/differential-gene-expression/deg_niches_sig.csv")
 
 # Background genes
-detected <- rownames(hearts)
+detected <- rownames(obj)
 
-# Loop through clusters and export upregulated ORA analyses
-for (i in unique(deg_clusters$cluster)) {
+# Loop through niches and export upregulated ORA analyses
+for (i in unique(deg_niches_sig$cluster)) {
   pdf(file = paste0("results/ora/ORA_up_", i, ".pdf"),
       #height = 4,
       width = 7,
       useDingbats = F)
-  ORA_up(deg_clusters, i, detected, "Upregulated in KO")
+  ORA_up(deg_niches_sig, i, detected, "Upregulated in KO")
   dev.off()
 }
 
 # Loop through clusters and export downregulated ORA analyses
-for (i in unique(deg_clusters$cluster)) {
+for (i in unique(deg_niches_sig$cluster)) {
   pdf(file = paste0("results/ora/ORA_down_", i, ".pdf"),
       #height = 4,
       width = 7,
       useDingbats = F)
-  ORA_down(deg_clusters, i, detected, "Downregulated in KO")
+  ORA_down(deg_niches_sig, i, detected, "Downregulated in KO")
   dev.off()
 }

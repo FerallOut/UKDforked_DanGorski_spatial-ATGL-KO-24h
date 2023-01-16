@@ -2,7 +2,6 @@
 # features with different scales on separate images are plotted with
 # the same scale.
 
-
 SpatialFeaturePlotScaled <- function(object,
                                      group,
                                      group.1,

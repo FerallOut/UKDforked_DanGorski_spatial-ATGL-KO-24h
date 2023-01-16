@@ -1,7 +1,7 @@
 # This produces a Volcano plot with statistically significant p < 0.01 genes
 # colored red (up-regulated) and blue (down-regulated). The top 20 most
 # statistically significant and top 20 most highly regulated genes
-# with an absolute average log2 fold change above 0.25 are labeled with
+# with an absolute average log2  fold change above 0.25  are labeled with
 # their gene symbol.
 
 # Input data is a dataframe from the Seurat FindMarkers output (with extra
@@ -34,6 +34,7 @@ VolcanoPlot <- function(df, identity, title) {
   deg_down_tops <- rbind(deg_down_sig_fc_top20sig, deg_down_sig_fc_top20fc)
   deg_down_tops <- distinct(deg_down_tops)
 
+
   # volcano plot
   vp <- ggplot(
     deg,
@@ -47,42 +48,33 @@ VolcanoPlot <- function(df, identity, title) {
       data = deg_up_sig,
       colour = "#eb2a0e"
     ) +
+    geom_label_repel(
+      data = deg_up_tops,
+      aes(label = gene),
+      colour = "#eb2a0e",
+      fill = "white",
+      fontface = "italic",
+      size = 3,
+      force = 2,
+      segment.size = 0.1,
+      segment.alpha = 0.3,
+      max.overlaps = Inf) +
     geom_point(
       data = deg_down_sig,
       colour = "#2664ad"
     ) +
-    geom_text_repel(
-      data = deg_up_tops,
-      aes(label = gene),
-      colour = "#eb2a0e",
-      fontface = "italic",
-      size = 3,
-      force = 2,
-      nudge_x = max(abs(deg$avg_log2FC)),
-      nudge_y = median(abs(deg$neglog10p)),
-      direction = "both",
-      segment.size = 0.1,
-      segment.alpha = 0.3,
-      segment.curvature = 0,
-      max.overlaps = Inf
-    ) +
-    geom_text_repel(
+    geom_label_repel(
       data = deg_down_tops,
       aes(label = gene),
       colour = "#2664ad",
+      fill = "white",
       fontface = "italic",
       size = 3,
       force = 2,
-      nudge_x = -(max(abs(deg$avg_log2FC))),
-      nudge_y = median(abs(deg$neglog10p)),
-      direction = "both",
       segment.size = 0.1,
       segment.alpha = 0.3,
-      segment.curvature = 0,
-      max.overlaps = Inf
-    ) +
+      max.overlaps = Inf) +
     xlab(expression("avg log"[2] * "(FC)")) +
-    # ylab("-log10 (p-adj)") +
     ylab(expression("-log"[10] * "(p-adj)")) +
     xlim(
       -max(abs(deg$avg_log2FC)),
@@ -94,14 +86,6 @@ VolcanoPlot <- function(df, identity, title) {
       color = "grey",
       size = 0.1
     ) +
-    # geom_vline(xintercept = -0.25,
-    #            linetype="dashed",
-    #            color = "grey",
-    #            size = 0.1) +
-    # geom_vline(xintercept = 0.25,
-    #            linetype="dashed",
-    #            color = "grey",
-    #            size = 0.1) +
     theme_bw() +
     theme(
       panel.grid.major = element_blank(),

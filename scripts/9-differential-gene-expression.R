@@ -1,4 +1,4 @@
-# Differential gene expression, each cluster, Control v KO
+# Differential gene expression, each niche, Control v KO
 
 # Make results directories if they do not exist
 output_dirs <- c("results",
@@ -14,7 +14,7 @@ for (i in output_dirs) {
 }
 
 # Load libraries, functions and objects
-library(Seurat) # v4.0.1
+library(Seurat)
 library(ggplot2)
 library(patchwork)
 library(scales)
@@ -26,13 +26,13 @@ library(enrichplot)
 library(ggrepel)
 source("scripts/SpatialFeaturePlotScaled.R")
 source("scripts/VolcanoPlot.R")
-load("results/objects/hearts.Rdata")
+load("results/objects/obj_annotated.Rdata")
 default_colors <- (hue_pal()(7))
 
 # No significance threshold
 de_genes <- list()
-for (i in levels(Idents(hearts))) {
-  results <- FindMarkers(hearts,
+for (i in levels(Idents(obj))) {
+  results <- FindMarkers(obj,
     group.by = "genotype",
     subset.ident = i,
     ident.1 = "KO",
@@ -45,18 +45,17 @@ for (i in levels(Idents(hearts))) {
   results$regulation <- ifelse(results$avg_log2FC > 0, "Up", "Down")
   de_genes[[i]] <- results
 }
-deg_clusters <- do.call(rbind, de_genes)
-rownames(deg_clusters) <- NULL
-write.csv(deg_clusters,
-  file = "results/differential-gene-expression/deg_clusters.csv",
+deg_niches <- do.call(rbind, de_genes)
+rownames(deg_niches) <- NULL
+write.csv(deg_niches,
+  file = "results/differential-gene-expression/deg_niches.csv",
   row.names = F
 )
-remove(de_genes)
 
 # With significance threshold
 de_genes <- list()
-for (i in levels(Idents(hearts))) {
-  results <- FindMarkers(hearts,
+for (i in levels(Idents(obj))) {
+  results <- FindMarkers(obj,
                          group.by = "genotype",
                          subset.ident = i,
                          ident.1 = "KO",
@@ -70,20 +69,20 @@ for (i in levels(Idents(hearts))) {
   results$regulation <- ifelse(results$avg_log2FC > 0, "Up", "Down")
   de_genes[[i]] <- results
 }
-deg_clusters_sig <- do.call(rbind, de_genes)
-deg_clusters_sig <- deg_clusters_sig %>% filter(p_val_adj <= 0.01)
-rownames(deg_clusters_sig) <- NULL
-write.csv(deg_clusters_sig,
-          file = "results/differential-gene-expression/deg_clusters_sig.csv",
+deg_niches_sig <- do.call(rbind, de_genes)
+deg_niches_sig <- deg_niches_sig %>% filter(p_val_adj <= 0.01)
+rownames(deg_niches_sig) <- NULL
+write.csv(deg_niches_sig,
+          file = "results/differential-gene-expression/deg_niches_sig.csv",
           row.names = F
 )
-remove(de_genes)
 
 # Volcano plot
-for (i in unique(deg_clusters$cluster)) {
+source("scripts/VolcanoPlot.R")
+for (i in unique(deg_niches$cluster)) {
   pdf(
     file = paste0(
-      "results/differential-gene-expression/VolcanoPlot_cluster_",
+      "results/differential-gene-expression/VolcanoPlot_Niche_",
       i,
       "_Control_vs_KO.pdf"
     ),
@@ -92,9 +91,9 @@ for (i in unique(deg_clusters$cluster)) {
     useDingbats = F
   )
   VolcanoPlot(
-    df = deg_clusters,
+    df = deg_niches,
     identity = i,
-    title = paste0("DEG cluster ", i, " - KO/Control")
+    title = paste0("DEG Niche: ", i, " - KO/Control")
   )
   dev.off()
 }

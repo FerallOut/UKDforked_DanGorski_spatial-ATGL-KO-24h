@@ -12,13 +12,14 @@ for (i in output_dirs) {
     print(paste0(i, " directory already exists."))
   }
 }
+
 # Load libraries, functions and objects
-library(Seurat) # v4.0.1
+library(Seurat)
 library(ggplot2)
 library(patchwork)
 library(scales)
 source("scripts/SpatialFeaturePlotScaled.R")
-load("results/objects/hearts.Rdata")
+load("results/objects/obj_annotated.Rdata")
 default_colors <- (hue_pal()(7))
 
 # VlnPlot of UMI counts
@@ -28,7 +29,7 @@ pdf(
   width = 6,
   useDingbats = F
 )
-VlnPlot(hearts,
+VlnPlot(obj,
   features = "nCount_Spatial",
   pt.size = 0.25,
   group.by = "genotype"
@@ -51,7 +52,7 @@ pdf(
   useDingbats = F
 )
 SpatialFeaturePlotScaled(
-  object = hearts,
+  object = obj,
   group = "genotype",
   group.1 = "Control",
   group.2 = "KO",
@@ -64,11 +65,8 @@ SpatialFeaturePlotScaled(
 dev.off()
 
 # SpatialDimPlot
-a <- SpatialDimPlot(hearts,
-  images = "Control",
-  pt.size.factor = 1.6
-) +
-  labs(fill = "Cluster") +
+a <- SpatialDimPlot(obj, images = "Control", pt.size.factor = 1.6) + 
+  labs(fill = "Niche") +
   ggtitle("Control") +
   theme(
     legend.text = element_text(size = 16),
@@ -77,14 +75,11 @@ a <- SpatialDimPlot(hearts,
     legend.key.size = unit(3, "point"),
     title = element_text(size = 16)
   ) +
-  guides(fill = guide_legend(override.aes = list(size = 5))) + NoLegend()
-b <- SpatialDimPlot(hearts,
-  images = "KO",
-  pt.size.factor = 1.6
-) +
-  labs(fill = "Cluster") +
+  guides(fill = guide_legend(override.aes = list(size = 7))) + NoLegend()
+b <- SpatialDimPlot(obj, images = "KO", pt.size.factor = 1.6) +
+  labs(fill = "Niche") +
   ggtitle("KO") +
-  theme(
+  theme( 
     legend.text = element_text(size = 16),
     legend.title = element_text(size = 16),
     legend.justification = "top",
@@ -102,10 +97,10 @@ print(a + b + plot_layout(guides = "collect"))
 dev.off()
 
 # Normal DimPlot
-p <- DimPlot(hearts, pt.size = 1.5) +
+p <- DimPlot(obj, pt.size = 1.5) +
   xlab("UMAP-1") +
   ylab("UMAP-2") +
-  labs(color = "Cluster") +
+  labs(color = "Niche") +
   theme(
     legend.text = element_text(size = 16),
     legend.title = element_text(size = 16),
@@ -142,7 +137,7 @@ pdf(
   width = 8,
   useDingbats = F
 )
-DimPlot(hearts, pt.size = 1.5, group.by = "genotype") +
+DimPlot(obj, pt.size = 1.5, group.by = "genotype") +
   xlab("UMAP-1") +
   ylab("UMAP-2") +
   labs(color = "Genotype") +
@@ -160,28 +155,22 @@ DimPlot(hearts, pt.size = 1.5, group.by = "genotype") +
 dev.off()
 
 # Single cluster highlight figures
-for (i in levels(Idents(hearts))) {
+for (i in levels(Idents(obj))) {
   coi <- default_colors[(as.numeric(i) + 1)]
-  a <- SpatialDimPlot(hearts,
+  a <- SpatialDimPlot(obj,
     images = "Control",
-    cells.highlight = WhichCells(hearts, idents = i),
-    cols.highlight = c(coi, "#ff00ff00"),
-    stroke = NA
-  ) +
-    scale_fill_manual(values = c(coi, "#ff00ff00"), labels = c(i, "rest")) +
+    cells.highlight = WhichCells(obj, idents = i),
+    stroke = NA) +
     NoLegend() +
-    labs(title = paste0("Cluster ", i), subtitle = "Control") +
+    labs(title = paste0("Niche ", i), subtitle = "Control") +
     theme(
       plot.title = element_text(color = coi, size = 16, face = "bold"),
       plot.subtitle = element_text(size = 14)
     )
-  b <- SpatialDimPlot(hearts,
+  b <- SpatialDimPlot(obj,
     images = "KO",
-    cells.highlight = WhichCells(hearts, idents = i),
-    cols.highlight = c(coi, "#ff00ff00"),
-    stroke = NA
-  ) +
-    scale_fill_manual(values = c(coi, "#ff00ff00"), labels = c(i, "rest")) +
+    cells.highlight = WhichCells(obj, idents = i),
+    stroke = NA) +
     NoLegend() +
     labs(title = "", subtitle = "KO") +
     theme(
