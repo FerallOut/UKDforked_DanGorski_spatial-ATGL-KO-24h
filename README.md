@@ -11,31 +11,36 @@ To recreate the full analysis you can follow the steps below.
 ### Libraries
 The following transcriptomics-specific libraries were used:
 
-* [Seurat](https://satijalab.org/seurat/index.html) v4.0.1
-* [clusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) v4.2.1
-* [enrichplot](https://bioconductor.org/packages/release/bioc/html/enrichplot.html) v1.14.1
-* [org.Mm.eg.db](https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html) v3.14.0
-* [yulab.utils](https://cran.r-project.org/package=yulab.utils) v0.0.4
+* [Seurat](https://satijalab.org/seurat/index.html) v4.3.0
+* [clusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) v4.6.0
+* [enrichplot](https://bioconductor.org/packages/release/bioc/html/enrichplot.html) v1.18.3
+* [org.Mm.eg.db](https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html) v3.16.0
+* [yulab.utils](https://cran.r-project.org/package=yulab.utils) v0.0.5
+* [orthogene](https://www.bioconductor.org/packages/release/bioc/html/orthogene.html) v1.4.1
 
 They can be installed with the following commands:
 ```R
 # Seurat
-remotes::install_version("Seurat", version = "4.0.1")
+remotes::install_version("Seurat", version = "4.3.0")
 
 # clusterProfiler etc.
 BiocManager::install("clusterProfiler")
 BiocManager::install("enrichplot")
 BiocManager::install("org.Mm.eg.db")
 install.packages("yulab.utils")
+BiocManager::install("orthogene")
 ```
 
 Additionally, the following standard R libraries were used:
+
 * dplyr
 * ggplot2
 * patchwork
 * scales
 * readr
 * ggrepel
+* rstatix
+* ggpubr
 * rstudioapi
 * shiny
 
@@ -44,7 +49,7 @@ To reproduce the analysis, clone this repository and place the spaceranger outpu
 
 By starting your R session with the R project file, `spatial-Atgl-KO-24h.Rproj`, your working directory will be set to project folder, no matter the location on your machine. This will allow easy reading/writing of data/results using relative paths.
 
-`0-full-analysis.R` will create all necessary directories and run the full analysis in the appropriate order. Each analysis step can also be run individually for better interactivity, starting from `1-clustering.R`.
+`0-full-analysis.R` will run the full analysis in the appropriate order. Each analysis step can also be run individually for better interactivity, starting from `1-preprocessing.R`.
 
 ## Examples
 <p align="center">
