@@ -45,9 +45,9 @@ Additionally, the following standard R libraries were used:
 * shiny
 
 ### Instructions
-To reproduce the analysis, clone this repository and place the spaceranger outputs inside the project folder under a sub-folder titled data. i.e. `spatial-Atgl-KO-24h/data/spaceranger`
+To reproduce the analysis, clone this repository and place the spaceranger outputs inside the project folder under a sub-folder titled data. i.e. `spatial-ATGL-KO-24h/data/spaceranger`
 
-By starting your R session with the R project file, `spatial-Atgl-KO-24h.Rproj`, your working directory will be set to project folder, no matter the location on your machine. This will allow easy reading/writing of data/results using relative paths.
+By starting your R session with the R project file, `spatial-ATGL-KO-24h.Rproj`, your working directory will be set to project folder, no matter the location on your machine. This will allow easy reading/writing of data/results using relative paths.
 
 `0-full-analysis.R` will run the full analysis in the appropriate order. Each analysis step can also be run individually for better interactivity, starting from `1-preprocessing.R`.
 
