@@ -1,6 +1,6 @@
 # spatial-Atgl-KO-24h
 
-This is a spatial transcriptomics project led by [Dr. Katharina Botterman](mailto:katharina.bottermann@hhu.de). It includes 10x Genomics Visium data of cardiac tissue 24 h after ischemia/reperfusion injury from adipose specific (iAdipoQCre) *Atgl*-KO mice.
+This is a spatial transcriptomics project led by [Dr. Katharina Botterman](mailto:katharina.bottermann@hhu.de). It includes 10x Genomics Visium data of cardiac tissue 24 h after ischemia/reperfusion injury from adipose specific (iAdipoQCre) ATGL-KO mice.
 
 ## Sequencing data
 Sequencing data, including fastq files and count matrices will be available upon publication or request.
