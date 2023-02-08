@@ -1,6 +1,6 @@
 # spatial-ATGL-KO-24h
 
-This is a spatial transcriptomics project led by [Dr. Katharina Botterman](mailto:katharina.bottermann@hhu.de). It includes 10x Genomics Visium data of cardiac tissue 24 h after ischemia/reperfusion injury from adipose specific (iAdipoQCre) ATGL-KO mice.
+This is a spatial transcriptomics project led by [Dr. Katharina Botterman](mailto:katharina.bottermann@hhu.de). It includes 10x Genomics Visium data of cardiac tissue 24 h after ischemia/reperfusion injury from adipocyte-specific (iAdipoQCre) ATGL-KO mice.
 
 ## Sequencing data
 Sequencing data, including fastq files and count matrices will be available upon publication or request.
@@ -30,19 +30,6 @@ BiocManager::install("org.Mm.eg.db")
 install.packages("yulab.utils")
 BiocManager::install("orthogene")
 ```
-
-Additionally, the following standard R libraries were used:
-
-* dplyr
-* ggplot2
-* patchwork
-* scales
-* readr
-* ggrepel
-* rstatix
-* ggpubr
-* rstudioapi
-* shiny
 
 ### Instructions
 To reproduce the analysis, clone this repository and place the spaceranger outputs inside the project folder under a sub-folder titled data. i.e. `spatial-ATGL-KO-24h/data/spaceranger`
