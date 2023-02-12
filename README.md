@@ -3,36 +3,27 @@
 This is a spatial transcriptomics project led by [Dr. Katharina Botterman](mailto:katharina.bottermann@hhu.de). It includes 10x Genomics Visium data of cardiac tissue 24 h after ischemia/reperfusion injury from adipocyte-specific (iAdipoQCre) ATGL-KO mice.
 
 ## Sequencing data
-Sequencing data, including fastq files and count matrices will be available upon publication or request.
+Sequencing data, including fastq files and spaceranger outputs can be found at ArrayExpress accession E-MTAB-12700, a public link will be available upon publication or request.
 
-## Analysis
+## Instructions
+
 To recreate the full analysis you can follow the steps below.
 
-### Libraries
-The following transcriptomics-specific libraries were used:
+### Data
 
-* [Seurat](https://satijalab.org/seurat/index.html) v4.3.0
-* [clusterProfiler](https://bioconductor.org/packages/release/bioc/html/clusterProfiler.html) v4.6.0
-* [enrichplot](https://bioconductor.org/packages/release/bioc/html/enrichplot.html) v1.18.3
-* [org.Mm.eg.db](https://bioconductor.org/packages/release/data/annotation/html/org.Mm.eg.db.html) v3.16.0
-* [yulab.utils](https://cran.r-project.org/package=yulab.utils) v0.0.5
-* [orthogene](https://www.bioconductor.org/packages/release/bioc/html/orthogene.html) v1.4.1
+Clone this repository and place the extracted spaceranger outputs from ArrayExpress under a sub-folder titled 'spaceranger' inside 'data'. i.e. `spatial-ATGL-KO-24h/data/spaceranger`
 
-They can be installed with the following commands:
-```R
-# Seurat
-remotes::install_version("Seurat", version = "4.3.0")
+### R & Libraries
 
-# clusterProfiler etc.
-BiocManager::install("clusterProfiler")
-BiocManager::install("enrichplot")
-BiocManager::install("org.Mm.eg.db")
-install.packages("yulab.utils")
-BiocManager::install("orthogene")
+R version 4.2.2 was used, packages versions and external sources were recorded with `renv` v0.16.0. To create a library with matching package versions from the ```renv.lock``` file, start an R session in the project directory and run:
+
+```r
+renv::restore()
 ```
 
-### Instructions
-To reproduce the analysis, clone this repository and place the spaceranger outputs inside the project folder under a sub-folder titled data. i.e. `spatial-ATGL-KO-24h/data/spaceranger`
+More information on ```renv``` can be found [here](https://rstudio.github.io/renv/articles/renv.html).
+
+### Analysis
 
 By starting your R session with the R project file, `spatial-ATGL-KO-24h.Rproj`, your working directory will be set to project folder, no matter the location on your machine. This will allow easy reading/writing of data/results using relative paths.
 
