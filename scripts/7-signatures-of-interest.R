@@ -44,6 +44,21 @@ for (i in colnames(Kruppe_et_al_vCM_markers)) {
                         assay = "Spatial")
 }
 
+# Read in stromal cell population marker genes from Forte et al. 2020, 
+# scoring cells
+Forte_et_al_stromal_markers <- read_csv("data/Forte_et_al_stromal_markers.csv")
+for (i in colnames(Forte_et_al_stromal_markers)) {
+  genes <- Forte_et_al_stromal_markers[i]
+  colnames(genes) <- "gene"
+  genes <- genes$gene
+  genes <- unique(genes)
+  genes <- genes[!is.na(genes)]
+  obj <- AddModuleScore(obj,
+                        features = list(genes),
+                        name = i,
+                        assay = "Spatial")
+}
+
 # Reading in gene sets, score cells
 gene_ontology <- read.csv("data/gene_signatures.csv")
 for (i in colnames(gene_ontology)) {
@@ -63,7 +78,8 @@ for (i in colnames(gene_ontology)) {
 meta_data_columns <- colnames(obj@meta.data)
 all <- as.numeric(length(meta_data_columns))
 new <- as.numeric(length(colnames(gene_ontology))) +
-  as.numeric(length(colnames(Kruppe_et_al_vCM_markers)))
+  as.numeric(length(colnames(Kruppe_et_al_vCM_markers))) +
+  as.numeric(length(colnames(Forte_et_al_stromal_markers))) 
 original <- all - new
 left <- meta_data_columns[1:original]
 right <- gsub(".{1}$", "", meta_data_columns)[(original + 1):all]
