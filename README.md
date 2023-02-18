@@ -11,7 +11,7 @@ To recreate the full analysis you can follow the steps below.
 
 ### Data
 
-Clone this repository and place the extracted spaceranger outputs from ArrayExpress under a sub-folder titled 'spaceranger' inside 'data'. i.e. `spatial-ATGL-KO-24h/data/spaceranger`
+Clone this repository and place the extracted `spaceranger` outputs from ArrayExpress under a sub-folder titled 'spaceranger' inside 'data'. i.e. `spatial-ATGL-KO-24h/data/spaceranger`
 
 ### R & Libraries
 
