@@ -1,8 +1,18 @@
+#if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
+# Load libraries, functions and objects
+
+x <- c("Seurat", "ggplot2", "patchwork", "scales", "dplyr")
+#BiocManager::install(x)
+
+# Load libraries
+invisible(lapply(x, library, character.only = TRUE))
+#---------------------------------------------------------
+
 # Visualize genes of interest
 
 # Make results directories if they do not exist
 output_dirs <- c("results",
-                 "results/genes-of-interest")
+                 "results/06_genes-of-interest")
 
 for (i in output_dirs) {
   if (!dir.exists(i)) {
@@ -14,13 +24,8 @@ for (i in output_dirs) {
 }
 
 # Load libraries, functions and objects
-library(Seurat)
-library(ggplot2)
-library(patchwork)
-library(scales)
-library(dplyr)
 source("scripts/SpatialFeaturePlotScaled.R")
-load("results/objects/obj_annotated.Rdata")
+load("results/01_objects/03_obj_annotated.Rdata")
 default_colors <- (hue_pal()(7))
 
 # Genes of interest
@@ -63,7 +68,7 @@ expressed_genes <- unlist(expressed_genes)
 # VlnPlots
 for (i in expressed_genes) {
   pdf(
-    file = paste0("results/genes-of-interest/VlnPlot_", i, ".pdf"),
+    file = paste0("results/06_genes-of-interest/VlnPlot_", i, ".pdf"),
     height = 6,
     width = 8,
     useDingbats = F
@@ -88,7 +93,7 @@ for (i in expressed_genes) {
 # SpatialFeaturePlots
 for (i in expressed_genes) {
   pdf(
-    file = paste0("results/genes-of-interest/SpatialFeaturePlot_", i, ".pdf"),
+    file = paste0("results/06_genes-of-interest/SpatialFeaturePlot_", i, ".pdf"),
     height = 6,
     width = 12.75,
     useDingbats = F

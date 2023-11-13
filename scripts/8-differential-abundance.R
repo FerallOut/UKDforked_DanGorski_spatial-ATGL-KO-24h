@@ -1,8 +1,17 @@
+#if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
+# Load libraries, functions and objects
+
+#BiocManager::install("Seurat")
+
+# Load libraries
+library("Seurat")
+#---------------------------------------------------------
+
 # Differential abundance
 
 # Make results directories if they do not exist
 output_dirs <- c("results",
-                 "results/differential-abundance")
+                 "results/08_differential-abundance")
 
 for (i in output_dirs) {
   if (!dir.exists(i)) {
@@ -14,8 +23,7 @@ for (i in output_dirs) {
 }
 
 # Load libraries, functions and objects
-library(Seurat)
-load("results/objects/obj_annotated.Rdata")
+load("results/01_objects/03_obj_annotated.Rdata")
 
 # Proportion
 differential_abundance <- (prop.table(table(
@@ -27,6 +35,6 @@ margin = 2
 differential_abundance <- as.data.frame(differential_abundance)
 colnames(differential_abundance) <- c("Cluster", "Sample", "Fraction")
 write.csv(differential_abundance,
-  file = "results/differential-abundance/differential_abundance.csv",
+  file = "results/08_differential-abundance/differential_abundance.csv",
   row.names = F
 )

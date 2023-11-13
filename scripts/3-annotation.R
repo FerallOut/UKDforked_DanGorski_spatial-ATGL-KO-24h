@@ -1,13 +1,17 @@
-# In this script we will annotate the molecular niches
+#if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
+
+x <- c("Seurat", "ggplot2", "ape")
+#BiocManager::install(x)
 
 # Load libraries
-library(Seurat)
-library(ggplot2)
-library(ape)
+invisible(lapply(x, library, character.only = TRUE))
+
+#------------------------------------
+# In this script we will annotate the molecular niches
 
 # Set up output dirs
 output_dirs <- c("results",
-                 "results/annotation")
+                 "results/03_annotation")
 for (i in output_dirs) {
   if (!dir.exists(i)) {
     dir.create(i)
@@ -18,7 +22,7 @@ for (i in output_dirs) {
 }
 
 # Load object
-load(file = "results/objects/obj_integrated.Rdata")
+load(file = "results/01_objects/02_obj_integrated.Rdata")
 
 # Set Idents to the optimum resolution
 Idents(obj) <- "integrated_snn_res.0.4"
@@ -28,7 +32,7 @@ niche_markers <- FindAllMarkers(obj,
                                 assay = "Spatial",
                                 only.pos = T)
 write.csv(niche_markers,
-          file = "results/annotation/niche_markers.csv",
+          file = "results/03_annotation/niche_markers.csv",
           row.names = F)
 top5 <- niche_markers %>%
   group_by(cluster) %>%
@@ -41,9 +45,9 @@ PlotClusterTreeDJG <- function(object, ...) {
     stop("Phylogenetic tree does not exist, build using BuildClusterTree")
   }
   data.tree <- Tool(object = object, slot = "BuildClusterTree")
-  plot.phylo(x = data.tree, font = 2, direction = "rightwards", label.offset = 2, edge.width = 1)
+  ape::plot.phylo(x = data.tree, font = 2, direction = "rightwards", label.offset = 2, edge.width = 1)
 }
-pdf(file = "results/annotation/Dendrogram.pdf",
+pdf(file = "results/03_annotation/Dendrogram.pdf",
     useDingbats = F)
 PlotClusterTreeDJG(obj)
 dev.off()
@@ -97,4 +101,4 @@ DimPlot(obj,
 Idents(obj) <- "basic_annotation"
 
 # Save object with basic annotations
-save(obj, file = "results/objects/obj_annotated.Rdata")
+save(obj, file = "results/01_objects/03_obj_annotated.Rdata")

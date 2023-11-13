@@ -1,8 +1,18 @@
+#if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
+# Load libraries, functions and objects
+
+x <- c("Seurat", "ggplot2", "patchwork", "scales")
+#BiocManager::install(x)
+
+# Load libraries
+invisible(lapply(x, library, character.only = TRUE))
+#---------------------------------------------------------
+
 # Export basic figures
 
 # Make results directories if they do not exist
 output_dirs <- c("results",
-                 "results/basic-figures")
+                 "results/04_basic-figures")
 
 for (i in output_dirs) {
   if (!dir.exists(i)) {
@@ -13,18 +23,13 @@ for (i in output_dirs) {
   }
 }
 
-# Load libraries, functions and objects
-library(Seurat)
-library(ggplot2)
-library(patchwork)
-library(scales)
 source("scripts/SpatialFeaturePlotScaled.R")
-load("results/objects/obj_annotated.Rdata")
+load("results/01_objects/03_obj_annotated.Rdata")
 default_colors <- (hue_pal()(7))
 
 # VlnPlot of UMI counts
 pdf(
-  file = "results/basic-figures/VlnPlot_UMI_count.pdf",
+  file = "results/04_basic-figures/VlnPlot_UMI_count.pdf",
   height = 6,
   width = 6,
   useDingbats = F
@@ -46,7 +51,7 @@ dev.off()
 
 # SpatialFeaturePlot of UMI counts
 pdf(
-  file = "results/basic-figures/SpatialFeaturePlot_UMI_count.pdf",
+  file = "results/04_basic-figures/SpatialFeaturePlot_UMI_count.pdf",
   height = 6,
   width = 12.75,
   useDingbats = F
@@ -88,7 +93,7 @@ b <- SpatialDimPlot(obj, images = "KO", pt.size.factor = 1.6) +
   ) +
   guides(fill = guide_legend(override.aes = list(size = 5)))
 pdf(
-  file = "results/basic-figures/SpatialDimPlot.pdf",
+  file = "results/04_basic-figures/SpatialDimPlot.pdf",
   height = 6,
   width = 12.75,
   useDingbats = F
@@ -122,7 +127,7 @@ p2 <- LabelClusters(
   label.size = 0
 )
 pdf(
-  file = "results/basic-figures/DimPlot.pdf",
+  file = "results/04_basic-figures/DimPlot.pdf",
   height = 6,
   width = 8,
   useDingbats = F
@@ -132,7 +137,7 @@ dev.off()
 
 # DimPlot grouped by genotype
 pdf(
-  file = "results/basic-figures/DimPlot_genotype.pdf",
+  file = "results/04_basic-figures/DimPlot_genotype.pdf",
   height = 6,
   width = 8,
   useDingbats = F
@@ -178,7 +183,7 @@ for (i in levels(Idents(obj))) {
       plot.subtitle = element_text(size = 14)
     )
   pdf(
-    file = paste0("results/basic-figures/SpatialDimPlot_Cluster_", i, ".pdf"),
+    file = paste0("results/04_basic-figures/SpatialDimPlot_Cluster_", i, ".pdf"),
     height = 6,
     width = 11.25,
     useDingbats = F

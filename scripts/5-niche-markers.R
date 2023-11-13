@@ -1,8 +1,18 @@
+#if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
+# Load libraries, functions and objects
+
+x <- c("Seurat", "ggplot2", "patchwork", "scales", "dplyr", "yulab.utils", "clusterProfiler", "org.Mm.eg.db", "enrichplot")
+#BiocManager::install(x)
+
+# Load libraries
+invisible(lapply(x, library, character.only = TRUE))
+#---------------------------------------------------------
+
 # Identify niche markers
 
 # Make results directories if they do not exist
 output_dirs <- c("results",
-                 "results/niche-markers")
+                 "results/05_niche-markers")
 
 for (i in output_dirs) {
   if (!dir.exists(i)) {
@@ -14,18 +24,9 @@ for (i in output_dirs) {
 }
 
 # Load libraries, functions and objects
-library(Seurat)
-library(ggplot2)
-library(patchwork)
-library(scales)
-library(dplyr)
-library(yulab.utils)
-library(clusterProfiler)
-library(org.Mm.eg.db)
-library(enrichplot)
 source("scripts/SpatialFeaturePlotScaled.R")
 source("scripts/GOBP_fold_enrich.R")
-load("results/objects/obj_annotated.Rdata")
+load("results/01_objects/03_obj_annotated.Rdata")
 default_colors <- (hue_pal()(7))
 
 # Find niche markers
@@ -39,7 +40,7 @@ top_100_niche_markers <- niche_markers %>%
   group_by(niche) %>%
   top_n(n = 100, wt = avg_log2FC)
 write.csv(niche_markers,
-  file = "results/niche-markers/niche_markers.csv",
+  file = "results/05_niche-markers/niche_markers.csv",
   row.names = F
 )
 
@@ -47,7 +48,7 @@ write.csv(niche_markers,
 genes <- top_10_niche_markers$gene
 for (i in genes) {
   pdf(
-    file = paste0("results/niche-markers/SpatialFeaturePlot_", i, ".pdf"),
+    file = paste0("results/05_niche-markers/SpatialFeaturePlot_", i, ".pdf"),
     height = 6,
     width = 12.75,
     useDingbats = F
@@ -64,17 +65,20 @@ for (i in genes) {
   )
   dev.off()
 }
+########################### << HERE STARTS THE ISSUE >> ##################################################
 
 # DotPlot
 top_5_niche_markers <- niche_markers %>%
   group_by(niche) %>%
-  top_n(n = 5, wt = avg_log2FC)
+  slice_max(n = 5, order_by = avg_log2FC)
+
 pdf(
-  file = "results/niche-markers/DotPlot_top_5_niche_markers.pdf",
+  file = "results/05_niche-markers/DotPlot_top_5_niche_markers.pdf",
   height = 6,
   width = 12,
   useDingbats = F
 )
+
 DotPlot(obj, features = unique(top_5_niche_markers$gene)) +
   RotatedAxis() +
   ylab("Niche") +
@@ -84,7 +88,7 @@ dev.off()
 
 # Heatmap
 pdf(
-  file = "results/niche-markers/Heatmap_top_30_niche_markers.pdf",
+  file = "results/05_niche-markers/Heatmap_top_30_niche_markers.pdf",
   height = 8,
   width = 6,
   useDingbats = F
@@ -118,7 +122,7 @@ for (i in unique(niche_markers$niche)) {
     )
   )
   pdf(
-    file = paste0("results/niche-markers/GOBP_Overrep_Niche_", i, ".pdf"),
+    file = paste0("results/05_niche-markers/GOBP_Overrep_Niche_", i, ".pdf"),
     height = 6,
     width = 10,
     useDingbats = F

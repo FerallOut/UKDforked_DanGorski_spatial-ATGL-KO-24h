@@ -1,14 +1,19 @@
 # In this script we will run the pre-processing for each sample
+#if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
+
+x <- c("Seurat", "cowplot", "tidyverse", "hdf5r"#,"ggpointdensity", "viridis"
+       )
+#BiocManager::install(x)
 
 # Load libraries
-library(tidyverse)
-library(Seurat)
-library(cowplot)
+invisible(lapply(x, library, character.only = TRUE))
+#---------------------------------------------------------------
 
 # Set up output dirs
 output_dirs <- c("results",
-                 "results/preprocessing",
-                 "results/objects")
+                 "results/01_preprocessing",
+                 "results/01_objects")
+
 for (i in output_dirs) {
   if (!dir.exists(i)) {
     dir.create(i)
@@ -17,11 +22,11 @@ for (i in output_dirs) {
     print(paste0(i, " directory already exists."))
   }
 }
-
+#---------------------------------------------------------------
 
 # Load metadata
 metadata <- read.csv("data/sample-metadata.csv")
-metadata <- metadata %>% filter(mouse_line == "1955")
+#metadata <- metadata %>% filter(mouse_line == "1955")
 
 # Load and process each spatial object
 obj_list <- list()
@@ -49,12 +54,17 @@ for (i in metadata$sample) {
   qc_p1 <- obj@meta.data %>%
     ggplot(aes(x = nCount_Spatial, y = nFeature_Spatial)) +
     geom_point() +
+    #geom_pointdensity() +
+    #scale_color_viridis() +
     theme_classic() +
     ggtitle(paste0("nspots ", ncol(obj)))
   
   qc_p2 <- obj@meta.data %>%
     ggplot(aes(x = nCount_Spatial, y = percent.mt)) +
     geom_point() +
+    theme(aspect.ratio=1) + 
+    #geom_pointdensity() +
+    #scale_color_viridis() +
     theme_classic() +
     ggtitle(paste0("nspots ", ncol(obj)))
   
@@ -64,12 +74,16 @@ for (i in metadata$sample) {
                                    features = c("nCount_Spatial", 
                                                 "nFeature_Spatial", 
                                                 "percent.mt"),
-                                   ncol = 3)
+                                   ncol = 3) &
+    theme(legend.text=element_text(size=7),
+          legend.title=element_text(size=7) )
+  
   
   qc_panel_pre <- cowplot::plot_grid(qc_panel, slide_qc_p, 
                                    nrow = 2, ncol = 1, 
                                    rel_heights = c(0.5, 0.5))
-
+  #------------------------------
+  
   # Filter genes expressed in less than 10 spots
   obj <- obj[rowSums(GetAssayData(obj, assay = "Spatial") > 0) > 10, ]
   
@@ -81,6 +95,9 @@ for (i in metadata$sample) {
   qc_p1_filt <- obj@meta.data %>%
     ggplot(aes(x = nCount_Spatial_filt, y = nFeature_Spatial_filt)) +
     geom_point() +
+    #geom_pointdensity() +
+    theme(aspect.ratio=1) +
+    #scale_color_viridis() +
     theme_classic() +
     geom_vline(xintercept = 300) +
     geom_hline(yintercept = 500) +
@@ -89,28 +106,32 @@ for (i in metadata$sample) {
   qc_p2_filt <- obj@meta.data %>%
     ggplot(aes(x = nFeature_Spatial_filt, y = percent.mt)) +
     geom_point() +
+    #geom_pointdensity() +
+    theme(aspect.ratio=1) +
+    #scale_color_viridis() +
     theme_classic() +
     geom_vline(xintercept = 300) +
     ggtitle(paste0("nspots ", ncol(obj)))
-  
-  # Filter spots that should have at least 1 cell (Same as HCA and Kuppe et al.)
-  obj <- subset(obj, subset = nFeature_Spatial_filt > 300 &
-                  nCount_Spatial_filt > 500)
-  
+
   qc_panel_filt <- cowplot::plot_grid(qc_p1_filt,
                                       qc_p2_filt,
                                       ncol = 2,
                                       align = "hv")
   
+  # Filter spots that should have at least 1 cell (Same as HCA and Kuppe et al.)
+  obj <- subset(obj, subset = nFeature_Spatial_filt > 300 &
+                  nCount_Spatial_filt > 500)
+  #--------------------------------------------------
+  
   # Export plots
-  pdf(file = paste0("results/preprocessing/qc_panel_pre_",
+  pdf(file = paste0("results/01_preprocessing/qc_panel_pre_",
                     i,
                     ".pdf"),
       useDingbats = F)
   print(qc_panel_pre)
   dev.off()
   
-  pdf(file = paste0("results/preprocessing/qc_panel_filt_",
+  pdf(file = paste0("results/01_preprocessing/qc_panel_filt_",
                     i,
                     ".pdf"),
       useDingbats = F)
@@ -123,4 +144,4 @@ for (i in metadata$sample) {
 }
 
 # Save list
-save(obj_list, file = "results/objects/obj_list.Rdata")
+save(obj_list, file = "results/01_objects/01_obj_list.Rdata")

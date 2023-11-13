@@ -1,8 +1,18 @@
+#if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
+# Load libraries, functions and objects
+
+x <- c("Seurat", "ggplot2", "patchwork", "scales", "dplyr", "readr", "rstatix", "ggpubr", "orthogene")
+#BiocManager::install(x)
+
+# Load libraries
+invisible(lapply(x, library, character.only = TRUE))
+#---------------------------------------------------------
+
 # Visualize gene signatures of interest
 
 # Make results directories if they do not exist
 output_dirs <- c("results",
-                 "results/signatures-of-interest")
+                 "results/07_signatures-of-interest")
 
 for (i in output_dirs) {
   if (!dir.exists(i)) {
@@ -14,17 +24,8 @@ for (i in output_dirs) {
 }
 
 # Load libraries, functions and objects
-library(Seurat)
-library(ggplot2)
-library(patchwork)
-library(scales)
-library(dplyr)
-library(readr)
-library(rstatix)
-library(ggpubr)
-library(orthogene)
 source("scripts/SpatialFeaturePlotScaledSig.R")
-load("results/objects/obj_annotated.Rdata")
+load("results/01_objects/03_obj_annotated.Rdata")
 default_colors <- (hue_pal()(7))
 
 # Read in vCM marker genes from Kruppe et al. 2022, convert to mouse gene
@@ -90,7 +91,7 @@ signatures <- tail(colnames(obj@meta.data), new)
 # VlnPlots
 for (i in signatures) {
   pdf(
-    file = paste0("results/signatures-of-interest/VlnPlot_", i, ".pdf"),
+    file = paste0("results/07_signatures-of-interest/VlnPlot_", i, ".pdf"),
     height = 6,
     width = 8,
     useDingbats = F
@@ -116,7 +117,7 @@ for (i in signatures) {
 for (i in signatures) {
   pdf(
     file = paste0(
-      "results/signatures-of-interest/SpatialFeaturePlot_",
+      "results/07_signatures-of-interest/SpatialFeaturePlot_",
       i,
       ".pdf"
     ),
@@ -182,7 +183,7 @@ for (i in signatures) {
   
   # output boxplot
   pdf(
-    file = paste0("results/signatures-of-interest/BoxPlot_", i, ".pdf"),
+    file = paste0("results/07_signatures-of-interest/BoxPlot_", i, ".pdf"),
     height = 6,
     width = 8,
     useDingbats = F
@@ -192,4 +193,4 @@ for (i in signatures) {
 }
 signature_stats <- do.call(rbind, signature_stats)
 row.names(signature_stats) <- NULL
-write_csv(signature_stats, file = "results/signatures-of-interest/signature_stats.csv")
+write_csv(signature_stats, file = "results/07_signatures-of-interest/signature_stats.csv")
