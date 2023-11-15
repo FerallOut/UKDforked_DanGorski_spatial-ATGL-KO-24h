@@ -24,11 +24,6 @@ for (i in output_dirs) {
 }
 #---------------------------------------------------------------
 
-# Load metadata
-metadata <- read.csv("data/sample-metadata.csv")
-#metadata <- metadata %>% filter(mouse_line == "1955")
-#---------------------------------------------------------------
-######################################################################################
 ### FUNCTIONS
 ## 2023-11-10 exit script without error
 f.exit_no_error <- function() { invokeRestart("abort") }
@@ -57,8 +52,21 @@ f.check_metadata_cols <- function(df.metadata) {
   )
 }
 
+## 2023-11-15 process string; 
+## it doesn't work, same issue as when using rlang::erquo directly into the plot
+# f.str_short <- function(func_output, delimiter) {
+#   defuse_func <- rlang::enquo(func_output)
+#   make_string <- toString(defuse_func)
+#   final_x <- gsub(".*\\$", "", make_string) 
+# }
+
 ## 2023-11-10 dotplots for qc
-f.dotplot_qc <- function(seurat_obj, x_data, y_data, x_intercept=0, y_intercep=0) {
+f.dotplot_qc <- function(seurat_obj, x_data, y_data, x_intercept=0, y_intercept=0) {
+  xto_str <- toString(rlang::enquo(x_data))
+  yto_str <- toString(rlang::enquo(y_data))
+  x_ax <- gsub(".*\\$","",xto_str)
+  y_ax <- gsub(".*\\$","",yto_str)
+  
   seurat_obj@meta.data %>%
     ggplot(aes(x=x_data, y=y_data)) +
     geom_point() +
@@ -68,7 +76,7 @@ f.dotplot_qc <- function(seurat_obj, x_data, y_data, x_intercept=0, y_intercep=0
     theme_classic() +
     geom_vline(xintercept = x_intercept) +
     geom_hline(yintercept = y_intercept) +
-    ggtitle(paste0("nspots ", ncol(seurat_obj)))
+    labs(title=seurat_obj@meta.data$bmfz_sample, x=x_ax, y=y_ax, subtitle = paste0("nspots ", ncol(seurat_obj))) 
 }
 #############################################################################
 
@@ -82,10 +90,10 @@ f.dotplot_qc <- function(seurat_obj, x_data, y_data, x_intercept=0, y_intercep=0
 ## [] obj
 ## [] i
 
-f.preprocess_spatial_ds <- function(str.spaceranger_dir, df.metadata, nr_spots=10, 
+f.preprocess_spatial_ds <- function(str.spaceranger_dir, df.metadata, i, nr_spots=10, 
                                     nFeat_threshold=300, nCount_threshold=500) {
   # Isolate metadata for each sample
-  df <- df.metadata[df.metadata$sample==i,]
+  df <- df.metadata[df.metadata$bmfz_sample==i,]
   
   # Create the Seurat object
   obj <- Load10X_Spatial(
@@ -102,8 +110,8 @@ f.preprocess_spatial_ds <- function(str.spaceranger_dir, df.metadata, nr_spots=1
   obj[["percent.mt"]] <- PercentageFeatureSet(obj, pattern = "^mt-")
   
   # Plot pre-filter QC
-  qc_p1 <- f.dotplot_qc(obj, nCount_Spatial, nFeature_Spatial, 0, 0)
-  qc_p2 <- f.dotplot_qc(obj, nCount_Spatial, percent.mt, 0, 0)
+  qc_p1 <- f.dotplot_qc(obj, obj@meta.data$nCount_Spatial, obj@meta.data$nFeature_Spatial, 0, 0)
+  qc_p2 <- f.dotplot_qc(obj, obj@meta.data$nCount_Spatial, obj@meta.data$percent.mt, 0, 0)
   qc_panel <- cowplot::plot_grid(qc_p1, qc_p2, 
                                  ncol = 2, align = "hv")
   
@@ -122,17 +130,17 @@ f.preprocess_spatial_ds <- function(str.spaceranger_dir, df.metadata, nr_spots=1
                                      rel_heights = c(0.5, 0.5))
   
   # Filter genes expressed in less than 10 spots
-  obj <- obj[rowSums(GetAssayData(obj, assay = "Spatial") > 0) > int(nr_spots), ]
+  obj <- obj[rowSums(GetAssayData(obj, assay = "Spatial", layer="counts") > 0) > as.integer(nr_spots), ]
   
   # Re-calculate genes and reads
-  obj$nFeature_Spatial_filt <- colSums(GetAssayData(obj, assay = "Spatial") > 0)
-  obj$nCount_Spatial_filt <- colSums(GetAssayData(obj, assay = "Spatial"))
+  obj$nFeature_Spatial_filt <- colSums(GetAssayData(obj, assay = "Spatial", layer="counts") > 0)
+  obj$nCount_Spatial_filt <- colSums(GetAssayData(obj, assay = "Spatial", layer="counts"))
   
   # Plot filtered QC
-  qc_p1_filt <- f.dotplot_qc(obj, nCount_Spatial_filt, nFeature_Spatial_filt, 
+  qc_p1_filt <- f.dotplot_qc(obj, obj@meta.data$nCount_Spatial_filt, obj@meta.data$nFeature_Spatial_filt, 
                              nFeat_threshold, nCount_threshold)
-  qc_p2_filt <- f.dotplot_qc(obj, nCount_Spatial_filt, percent.mt, 
-                             nFeat_threshold, nCount_threshold)
+  qc_p2_filt <- f.dotplot_qc(obj, obj@meta.data$nFeature_Spatial_filt, obj@meta.data$percent.mt, 
+                             nFeat_threshold, 0)
   qc_panel_filt <- cowplot::plot_grid(qc_p1_filt,
                                       qc_p2_filt,
                                       ncol = 2,
@@ -142,41 +150,54 @@ f.preprocess_spatial_ds <- function(str.spaceranger_dir, df.metadata, nr_spots=1
   obj <- subset(obj, 
                 subset = nFeature_Spatial_filt > nFeat_threshold &
                          nCount_Spatial_filt > nCount_threshold)
-  #--------------------------------------------------
-  
+
   # Export plots
-  pdf(file = paste0("results/01_preprocessing/qc_panel_pre_",
+  pdf(file = paste0("results/01_preprocessing_mine/qc_panel_pre_",
                     i,
                     ".pdf"),
       useDingbats = F)
   print(qc_panel_pre)
   dev.off()
   
-  pdf(file = paste0("results/01_preprocessing/qc_panel_filt_",
+  pdf(file = paste0("results/01_preprocessing_mine/qc_panel_filt_",
                     i,
                     ".pdf"),
       useDingbats = F)
   print(qc_panel_filt)
   dev.off()
-
-  return(obj)
+  
+  return(obj) 
 }
+#--------------------------------------------------
+  
 #------------------------------------
 #------------------------------------
 #------------------------------------
+# Load metadata
+metadata <- read.csv("metadata/2023.11.13_metadata_all_samples.csv")
+#---------------------------------------------------------------
+
 ## CALLS
+# check metadata
+f.check_metadata_cols(metadata)
+
 # Load and process each spatial object
 obj_list <- list()
 str.spaceranger_dir <- "data/spaceranger/"
-# for (i in metadata$sample) {
-#   append(obj_list, f.preprocess_spatial_ds(str.spaceranger_dir, metadata, nr_spots=10, 
-#                                       nFeat_threshold=300, nCount_threshold=500)  
 
-do.call(f.preprocess_spatial_ds, list(str.spaceranger_dir, metadata, nr_spots=10, 
-                                          nFeat_threshold=300, nCount_threshold=500)
-)
-  
+for (i in metadata$bmfz_sample) {
+  obj <- f.preprocess_spatial_ds(str.spaceranger_dir, metadata, i, nr_spots=10,
+                                 nFeat_threshold=300, nCount_threshold=500)
+
+  # Append to list
+  obj_list[i] <- obj
+ }
+
+# obj_list <- lapply(list(metadata$bmfz_sample), FUN = function(x){
+#   x <- f.preprocess_spatial_ds(str.spaceranger_dir, metadata, i, nr_spots=10, 
+#                                nFeat_threshold=300, nCount_threshold=500)
+# })
 
 
 # Save list
-save(obj_list, file = "results/01_objects/01_obj_list.Rdata")
+save(obj_list, file = "results/01_objects_mine/01_obj_list.Rdata")

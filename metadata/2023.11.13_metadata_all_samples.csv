@@ -1,0 +1,7 @@
+slide,mouse_line,genotype_long,sample,animal_number,sample_ID,bmfz_sample
+V11B04-025_A1,1955,iAdipoQCre_het_ATGL_flox_homo,KO,283075,643-1,643-1_A1_manualAlignment2
+V11B04-025_B1,1955,iAdipoQCre_wt_ATGL_flox_homo,Control,283076,643-2,643-2_B1
+V13M06-374_A1,1955,iAdipoQCre_wt_ATGL_flox_homo,Control,859693,949-5,949-5_spaceranger_count
+V13M06-374_B1,1955,iAdipoQCre_het_ATGL_flox_homo,KO,859694,949-6,949-6_spaceranger_count
+V13M06-374_C1,1955,iAdipoQCre_wt_ATGL_flox_homo,Control,859697,949-7,949-7_spaceranger_count
+V13M06-374_D1,1955,iAdipoQCre_het_ATGL_flox_homo,KO,859698,949-8,949-8_spaceranger_count

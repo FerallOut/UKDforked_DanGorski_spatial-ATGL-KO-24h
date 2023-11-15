@@ -25,7 +25,7 @@ for (i in output_dirs) {
 #---------------------------------------------------------------
 
 # Load metadata
-metadata <- read.csv("data/sample-metadata.csv")
+metadata <- read.csv("metadata/2023.10.23_metadata_testsamples.csv")
 #metadata <- metadata %>% filter(mouse_line == "1955")
 
 # Load and process each spatial object

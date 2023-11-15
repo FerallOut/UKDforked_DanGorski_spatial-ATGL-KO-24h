@@ -1,15 +1,18 @@
-# In this script we will perform integrated clustering of both genotypes
+# In this script we will run the pre-processing for each sample
+#if (!"BiocManager" %in% installed.packages()) install.packages("BiocManager")
+
+x <- c("Seurat", "ggplot2", "patchwork", "clustree", "glmGamPoi")
+#BiocManager::install(x)
 
 # Load libraries
-library(Seurat)
-library(ggplot2)
-library(patchwork)
-library(clustree)
-library(glmGamPoi)
+invisible(lapply(x, library, character.only = TRUE))
+#-----------------------------------
+
+# In this script we will perform integrated clustering of both genotypes
 
 # Set up output dirs
 output_dirs <- c("results",
-                 "results/02_integrated-clustering")
+                 "results/02_integrated-clustering_mine")
 for (i in output_dirs) {
   if (!dir.exists(i)) {
     dir.create(i)
@@ -20,12 +23,12 @@ for (i in output_dirs) {
 }
 
 # Load obj list
-load(file = "results/01_objects/01_obj_list.Rdata")
+load(file = "results/01_objects_mine/01_obj_list.Rdata")
 
 # SCTransform
-obj_list <- lapply(X = obj_list[1:2], FUN = function(x){
+obj_list <- lapply(X = obj_list, FUN = function(x){
   x <- SCTransform(x, assay = "Spatial", vst.flavor = "v2")
-})
+  })
 
 # Integration
 features <- SelectIntegrationFeatures(obj_list, nfeatures = 3000)
@@ -46,7 +49,7 @@ DefaultAssay(obj) <- "Spatial"
 # Find the optimum clustering resolution with clustree
 # https://cran.r-project.org/web/packages/clustree/vignettes/clustree.html
 clust <- clustree(obj, prefix = "integrated_snn_res.", layout = "sugiyama")
-pdf(file ="results/02_integrated-clustering/clustree.pdf",
+pdf(file ="results/02_integrated-clustering_mine/clustree.pdf",
     useDingbats = F)
 print(clust)
 dev.off()
@@ -58,7 +61,7 @@ obj <- ScaleData(obj, features = all_genes)
 
 # Factor surgery variable 
 obj@meta.data$genotype <- factor(obj@meta.data$genotype,
-                                 levels = c("Control", "KO"))
+                                    levels = c("Control", "KO"))
 
 # Save clustered object
-save(obj, file = "results/01_objects/02_obj_integrated.Rdata")
+save(obj, file = "results/01_objects_mine/02_obj_integrated.Rdata")
